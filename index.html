@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Rakhi Aadyu ♡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      height: 100dvh;
+      background: linear-gradient(rgba(255, 182, 193, 0.4), rgba(138, 43, 226, 0.4)), url('rakhi.jpg') no-repeat center center;
+      background-size: cover;
+      background-attachment: fixed;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+    }
+    
+    .top-decor {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #fff0f5;
+      text-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      animation: glow 2s ease-in-out infinite alternate;
+      padding: 50px 0 0 0;
+      z-index: 2;
+      position: absolute;
+      top: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    
+    .card {
+      background: rgba(255, 245, 250, 0.15);
+      border-radius: 25px;
+      padding: 30px;
+      max-width: 750px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(255, 182, 193, 0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 182, 193, 0.4);
+      z-index: 2;
+      animation: fadeUp 1.5s ease-in-out forwards;
+      opacity: 0;
+    }
+    
+    #heading {
+      text-align: center;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ff69b4, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 25px;
+    }
+    
+    .message {
+      text-align: left;
+      font-size: 1.2rem;
+      line-height: 1.8;
+      color: #fff0f5;
+      font-weight: 500;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      margin-bottom: 25px;
+      padding: 0 10px;
+    }
+    
+    .button {
+      display: block;
+      margin: 0 auto;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 15px;
+      background: linear-gradient(45deg, #ff69b4, #ffcc00);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    
+    .button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6);
+    }
+    
+    .hidden {
+      display: none;
+      text-align: left;
+      margin-top: 25px;
+      font-size: 1.15rem;
+      color: #fff0f5;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 2.5s ease-in-out;
+      padding: 0 10px;
+    }
+    
+    #emoji {
+      display: none;
+      margin-top: 30px;
+      font-size: 3rem;
+      animation: bounce 1.5s infinite;
+      text-align: left;
+      padding: 0 10px;
+    }
+    
+    .hearts {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      animation: floatHearts 15s linear infinite;
+      opacity: 0.3;
+      z-index: 1;
+    }
+    
+    @keyframes floatHearts {
+      0% {
+        background-position: 0 0;
+      }
+      
+      100% {
+        background-position: 0 -1500px;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+    
+    @keyframes fadeUp {
+      0% {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px rgba(255, 105, 180, 0.6);
+        transform: scale(1);
+      }
+      
+      to {
+        text-shadow: 0 0 15px rgba(255, 105, 180, 1);
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      
+      50% {
+        transform: scale(1.03);
+      }
+      
+      100% {
+        transform: scale(1);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .top-decor {
+        font-size: 2rem;
+      }
+      
+      #heading {
+        font-size: 2rem;
+      }
+      
+      .message,
+      .hidden {
+        font-size: 1rem;
+      }
+      
+      .button {
+        font-size: 1rem;
+        padding: 12px 24px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hearts"></div>
+  <div class="top-decor"><b>💖 Rakhi Special 💖</b></div>
+  
+  <div class="card" id="card">
+    <h1 id="heading">🌺 Happy Raksha Bandhan Aadyu ♡ 🌺</h1>
+    <p class="message" id="message">
+      Tere bhaiya ka pyaar sirf shabdon mein nahi,<br />
+      iss digital dil mein bhi basa hua hai 🥺💖<br />
+      Tu chahe jitni door ho, tere liye ek special surprise hai 😇
+    </p>
+    <button class="button" id="revealBtn" onclick="reveal()">Tap to Reveal 🎉</button>
+    <p class="hidden" id="surpriseText"></p>
+    <div id="emoji">🥰💖</div>
+  </div>
+  
+  <audio id="bgAudio" src="popper.mp3" preload="auto"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    // Initialize Firebase
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDvvIa8c5ROV12yW8jK23yCzGQTU0CycgA",
+      authDomain: "project-9051288088850085523.firebaseapp.com",
+      projectId: "project-9051288088850085523",
+      storageBucket: "project-9051288088850085523.firebasestorage.app",
+      messagingSenderId: "145488212997",
+      appId: "1:145488212997:web:b55955b4fdd89f53ff586c",
+      measurementId: "G-01F69EN22J"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Log IP and timestamp on page load
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        db.collection("visits").add({
+            ip: data.ip,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            page: "aadya1.html"
+          })
+          .then(() => console.log("IP and visit time logged!"))
+          .catch(error => console.error("Error logging visit: ", error));
+      })
+      .catch(error => console.error("Error fetching IP:", error));
+    
+    function reveal() {
+      document.getElementById('heading').style.display = 'none';
+      document.getElementById('message').style.display = 'none';
+      document.getElementById('revealBtn').style.display = 'none';
+      
+      const text = `💌 Aadyu, tu bhaiya ki sabse pyari sis hai 🥰\nYe virtual gift teri smile ke liye hai\n9th August, yaad rahe…\n\n🌸 Tu meri life ka sabse cute, sabse precious gift hai 🎁 \n Hamesha khush rehna princess... bhaiya loves you forever 💫`;
+      let i = 0;
+      const surpriseText = document.getElementById("surpriseText");
+      surpriseText.style.display = 'block';
+      
+      function typeWriter() {
+        if (i < text.length) {
+          surpriseText.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typeWriter, 35);
+        } else {
+          setTimeout(() => {
+            document.getElementById('emoji').style.display = 'block';
+          }, 300);
+        }
+      }
+      
+      typeWriter();
+      document.getElementById("bgAudio").play();
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        shapes: ['circle', 'square', 'heart'],
+        colors: ['#ff69b4', '#ffd700', '#ffccff']
+      });
+    }
+  </script>
+</body>
+
+</html>
