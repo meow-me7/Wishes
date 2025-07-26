@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tic Tac Toe - Multiplayer</title>
   <style>
     body {
@@ -10,21 +10,17 @@
       text-align: center;
       background-color: #f0f0f0;
     }
-    
     h1 {
       color: #333;
     }
-    
     #game-id,
     #joinGameId,
     #joinGame {
       margin: 10px;
     }
-    
     #joinGameId {
       padding: 5px;
     }
-    
     #game-board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
@@ -32,7 +28,6 @@
       margin: 20px auto;
       width: 315px;
     }
-    
     .cell {
       width: 100px;
       height: 100px;
@@ -44,16 +39,13 @@
       font-size: 40px;
       cursor: pointer;
     }
-    
     .cell:hover {
       background-color: #f1f1f1;
     }
-    
     #status {
       margin: 20px 0;
       font-size: 24px;
     }
-    
     #reset {
       padding: 10px 20px;
       font-size: 18px;
@@ -62,7 +54,6 @@
       border: none;
       cursor: pointer;
     }
-    
     #reset:hover {
       background-color: #555;
     }
@@ -87,56 +78,57 @@
   </div>
   <h2 id="status">Game shuru karne ke liye doosra player join kare</h2>
   <button id="reset">Reset Game</button>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+  <!-- ✅ Firebase v8 Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
   <script>
-    // Firebase Config (apne Firebase project ka config yahan daalo)
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCBb53XxP8On1hgC4k9orV_EFb6gCD4rXU",
-  authDomain: "tic-tac-toe-d1955.firebaseapp.com",
-  databaseURL: "https://tic-tac-toe-d1955-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "tic-tac-toe-d1955",
-  storageBucket: "tic-tac-toe-d1955.firebasestorage.app",
-  messagingSenderId: "82331359289",
-  appId: "1:82331359289:web:3e3d891b4774021d1f55e8",
-  measurementId: "G-22HXCVCMV5"
-};
-    
-    // Firebase initialize karo
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBb53XxP8On1hgC4k9orV_EFb6gCD4rXU",
+      authDomain: "tic-tac-toe-d1955.firebaseapp.com",
+      projectId: "tic-tac-toe-d1955",
+      storageBucket: "tic-tac-toe-d1955.appspot.com",
+      messagingSenderId: "82331359289",
+      appId: "1:82331359289:web:3e3d891b4774021d1f55e8",
+      measurementId: "G-22HXCVCMV5",
+      databaseURL: "https://tic-tac-toe-d1955-default-rtdb.firebaseio.com/"
+    };
+
+    // ✅ Firebase Init
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
-    const cells = document.querySelectorAll('.cell');
-    const statusText = document.getElementById('status');
-    const resetButton = document.getElementById('reset');
-    const joinGameIdInput = document.getElementById('joinGameId');
-    const joinGameButton = document.getElementById('joinGame');
-    const gameIdDisplay = document.getElementById('gameId');
+
+    const cells = document.querySelectorAll(".cell");
+    const statusText = document.getElementById("status");
+    const resetButton = document.getElementById("reset");
+    const joinGameIdInput = document.getElementById("joinGameId");
+    const joinGameButton = document.getElementById("joinGame");
+    const gameIdDisplay = document.getElementById("gameId");
+
     let currentPlayer = null;
-    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
     let gameActive = false;
     let gameId = null;
     let playerId = null;
-    
+
     const winningCombinations = [
       [0, 1, 2],
       [3, 4, 5],
-      [6, 7, 8], // Rows
+      [6, 7, 8],
       [0, 3, 6],
       [1, 4, 7],
-      [2, 5, 8], // Columns
+      [2, 5, 8],
       [0, 4, 8],
-      [2, 4, 6] // Diagonals
+      [2, 4, 6]
     ];
-    
-    // Naya game shuru karo
+
     function startNewGame() {
       gameId = Math.random().toString(36).substring(2, 8);
       gameIdDisplay.textContent = gameId;
-      playerId = 'X';
-      currentPlayer = 'X';
+      playerId = "X";
+      currentPlayer = "X";
       gameActive = true;
       statusText.textContent = `Player X ki baari (Game ID: ${gameId})`;
       database.ref(`games/${gameId}`).set({
@@ -146,42 +138,39 @@ const firebaseConfig = {
       });
       listenForGameUpdates();
     }
-    
-    // Game join karo
-    joinGameButton.addEventListener('click', () => {
+
+    joinGameButton.addEventListener("click", () => {
       gameId = joinGameIdInput.value;
       if (gameId) {
-        database.ref(`games/${gameId}`).once('value', snapshot => {
+        database.ref(`games/${gameId}`).once("value", snapshot => {
           if (snapshot.exists() && !snapshot.val().players.O) {
-            playerId = 'O';
+            playerId = "O";
             database.ref(`games/${gameId}/players`).update({ O: true });
             gameIdDisplay.textContent = gameId;
             gameActive = true;
             statusText.textContent = `Player O ki baari (Game ID: ${gameId})`;
             listenForGameUpdates();
           } else {
-            statusText.textContent = 'Game ID invalid ya doosra player already joined!';
+            statusText.textContent = "Game ID invalid ya doosra player already joined!";
           }
         });
       }
     });
-    
-    // Cell click handle karo
+
     function handleCellClick(event) {
-      const index = event.target.getAttribute('data-index');
-      if (gameBoard[index] === '' && gameActive && currentPlayer === playerId) {
+      const index = event.target.getAttribute("data-index");
+      if (gameBoard[index] === "" && gameActive && currentPlayer === playerId) {
         gameBoard[index] = currentPlayer;
         database.ref(`games/${gameId}`).update({
           board: gameBoard,
-          currentPlayer: currentPlayer === 'X' ? 'O' : 'X'
+          currentPlayer: currentPlayer === "X" ? "O" : "X"
         });
       }
     }
-    
-    // Real-time updates
+
     function listenForGameUpdates() {
       if (gameId) {
-        database.ref(`games/${gameId}`).on('value', snapshot => {
+        database.ref(`games/${gameId}`).on("value", snapshot => {
           if (snapshot.exists()) {
             const data = snapshot.val();
             gameBoard = data.board;
@@ -193,15 +182,13 @@ const firebaseConfig = {
         });
       }
     }
-    
-    // Board update karo
+
     function updateBoard() {
       cells.forEach((cell, index) => {
         cell.textContent = gameBoard[index];
       });
     }
-    
-    // Winner check karo
+
     function checkWinner() {
       for (let combo of winningCombinations) {
         const [a, b, c] = combo;
@@ -211,30 +198,28 @@ const firebaseConfig = {
           return;
         }
       }
-      if (!gameBoard.includes('')) {
-        statusText.textContent = 'Game draw!';
+      if (!gameBoard.includes("")) {
+        statusText.textContent = "Game draw!";
         gameActive = false;
       }
     }
-    
-    // Game reset karo
+
     function resetGame() {
-      gameBoard = ['', '', '', '', '', '', '', '', ''];
+      gameBoard = ["", "", "", "", "", "", "", "", ""];
       gameActive = true;
-      currentPlayer = 'X';
+      currentPlayer = "X";
       database.ref(`games/${gameId}`).set({
         board: gameBoard,
         currentPlayer: currentPlayer,
-        players: { X: true, O: playerId === 'O' ? true : false }
+        players: { X: true, O: playerId === "O" ? true : false }
       });
       statusText.textContent = `Player X ki baari`;
     }
-    
-    // Event listeners
-    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-    resetButton.addEventListener('click', resetGame);
-    
-    // Automatically start a new game on page load
+
+    cells.forEach(cell => cell.addEventListener("click", handleCellClick));
+    resetButton.addEventListener("click", resetGame);
+
+    // Start new game on load
     startNewGame();
   </script>
 </body>
