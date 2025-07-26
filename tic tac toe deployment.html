@@ -10,16 +10,8 @@
       text-align: center;
       background-color: #f0f0f0;
     }
-    h1 {
-      color: #333;
-    }
-    #game-id,
-    #joinGameId,
-    #joinGame {
-      margin: 10px;
-    }
-    #joinGameId {
-      padding: 5px;
+    #menu, #game-section {
+      margin-top: 30px;
     }
     #game-board {
       display: grid;
@@ -42,49 +34,56 @@
     .cell:hover {
       background-color: #f1f1f1;
     }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    input {
+      padding: 5px;
+      font-size: 16px;
+    }
     #status {
       margin: 20px 0;
-      font-size: 24px;
-    }
-    #reset {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    #reset:hover {
-      background-color: #555;
+      font-size: 20px;
     }
   </style>
 </head>
-
 <body>
   <h1>Tic Tac Toe - Multiplayer</h1>
-  <div id="game-id">Game ID: <span id="gameId"></span></div>
-  <input id="joinGameId" placeholder="Game ID daalo" />
-  <button id="joinGame">Join Game</button>
-  <div id="game-board">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
-  </div>
-  <h2 id="status">Game shuru karne ke liye doosra player join kare</h2>
-  <button id="reset">Reset Game</button>
 
-  <!-- ✅ Firebase v8 Scripts -->
+  <div id="menu">
+    <input type="text" id="playerName" placeholder="Apna naam daalo" />
+    <br />
+    <button onclick="hostGame()">Host Game</button>
+    <br />
+    <input type="text" id="joinGameId" placeholder="Game ID daalo" />
+    <button onclick="joinGame()">Join Game</button>
+  </div>
+
+  <div id="game-section" style="display:none;">
+    <h3 id="playerLabel"></h3>
+    <div>Game ID: <span id="gameIdDisplay"></span></div>
+    <div id="game-board">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+    <h2 id="status">Dusra player ka wait ho raha hai...</h2>
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
+
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCBb53XxP8On1hgC4k9orV_EFb6gCD4rXU",
       authDomain: "tic-tac-toe-d1955.firebaseapp.com",
@@ -96,101 +95,106 @@
       databaseURL: "https://tic-tac-toe-d1955-default-rtdb.firebaseio.com/"
     };
 
-    // ✅ Firebase Init
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     const cells = document.querySelectorAll(".cell");
     const statusText = document.getElementById("status");
-    const resetButton = document.getElementById("reset");
-    const joinGameIdInput = document.getElementById("joinGameId");
-    const joinGameButton = document.getElementById("joinGame");
-    const gameIdDisplay = document.getElementById("gameId");
+    const gameIdDisplay = document.getElementById("gameIdDisplay");
+    const playerLabel = document.getElementById("playerLabel");
 
-    let currentPlayer = null;
-    let gameBoard = ["", "", "", "", "", "", "", "", ""];
-    let gameActive = false;
     let gameId = null;
     let playerId = null;
+    let playerName = null;
+    let gameActive = false;
+    let currentPlayer = null;
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
 
-    const winningCombinations = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6]
-    ];
-
-    function startNewGame() {
+    function hostGame() {
+      const name = document.getElementById("playerName").value.trim();
+      if (!name) return alert("Naam likho pehle!");
       gameId = Math.random().toString(36).substring(2, 8);
-      gameIdDisplay.textContent = gameId;
       playerId = "X";
+      playerName = name;
       currentPlayer = "X";
-      gameActive = true;
-      statusText.textContent = `Player X ki baari (Game ID: ${gameId})`;
-      database.ref(`games/${gameId}`).set({
+      gameActive = false;
+
+      database.ref("games/" + gameId).set({
         board: gameBoard,
-        currentPlayer: currentPlayer,
-        players: { X: true }
+        currentPlayer,
+        players: { X: name },
+        started: false
       });
-      listenForGameUpdates();
+
+      gameIdDisplay.textContent = gameId;
+      playerLabel.textContent = `Player X (Tum): ${name}`;
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("game-section").style.display = "block";
+      listenForUpdates();
     }
 
-    joinGameButton.addEventListener("click", () => {
-      gameId = joinGameIdInput.value;
-      if (gameId) {
-        database.ref(`games/${gameId}`).once("value", snapshot => {
-          if (snapshot.exists() && !snapshot.val().players.O) {
-            playerId = "O";
-            database.ref(`games/${gameId}/players`).update({ O: true });
-            gameIdDisplay.textContent = gameId;
-            gameActive = true;
-            statusText.textContent = `Player O ki baari (Game ID: ${gameId})`;
-            listenForGameUpdates();
-          } else {
-            statusText.textContent = "Game ID invalid ya doosra player already joined!";
-          }
-        });
-      }
-    });
+    function joinGame() {
+      const name = document.getElementById("playerName").value.trim();
+      const id = document.getElementById("joinGameId").value.trim();
+      if (!name || !id) return alert("Naam aur Game ID dono chahiye!");
+      database.ref("games/" + id).once("value", snapshot => {
+        if (!snapshot.exists()) return alert("Galat Game ID!");
+        if (snapshot.val().players.O) return alert("Game already full!");
 
-    function handleCellClick(event) {
-      const index = event.target.getAttribute("data-index");
-      if (gameBoard[index] === "" && gameActive && currentPlayer === playerId) {
-        gameBoard[index] = currentPlayer;
-        database.ref(`games/${gameId}`).update({
-          board: gameBoard,
-          currentPlayer: currentPlayer === "X" ? "O" : "X"
-        });
-      }
+        gameId = id;
+        playerId = "O";
+        playerName = name;
+        database.ref("games/" + gameId + "/players").update({ O: name });
+        database.ref("games/" + gameId).update({ started: true });
+
+        gameIdDisplay.textContent = gameId;
+        playerLabel.textContent = `Player O (Tum): ${name}`;
+        document.getElementById("menu").style.display = "none";
+        document.getElementById("game-section").style.display = "block";
+        listenForUpdates();
+      });
     }
 
-    function listenForGameUpdates() {
-      if (gameId) {
-        database.ref(`games/${gameId}`).on("value", snapshot => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            gameBoard = data.board;
-            currentPlayer = data.currentPlayer;
-            updateBoard();
-            checkWinner();
-            statusText.textContent = `Player ${currentPlayer} ki baari`;
-          }
-        });
-      }
+    function handleCellClick(e) {
+      const index = e.target.getAttribute("data-index");
+      if (!gameActive || currentPlayer !== playerId || gameBoard[index] !== "") return;
+      gameBoard[index] = currentPlayer;
+      database.ref("games/" + gameId).update({
+        board: gameBoard,
+        currentPlayer: currentPlayer === "X" ? "O" : "X"
+      });
+    }
+
+    function listenForUpdates() {
+      database.ref("games/" + gameId).on("value", snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        gameBoard = data.board;
+        currentPlayer = data.currentPlayer;
+        updateBoard();
+
+        if (data.started && data.players.X && data.players.O) {
+          gameActive = true;
+          statusText.textContent = `Player ${currentPlayer} ki baari`;
+        }
+
+        checkWinner();
+      });
     }
 
     function updateBoard() {
-      cells.forEach((cell, index) => {
-        cell.textContent = gameBoard[index];
+      cells.forEach((cell, i) => {
+        cell.textContent = gameBoard[i];
       });
     }
 
     function checkWinner() {
-      for (let combo of winningCombinations) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let combo of wins) {
         const [a, b, c] = combo;
         if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
           statusText.textContent = `Player ${gameBoard[a]} jeet gaya!`;
@@ -206,21 +210,15 @@
 
     function resetGame() {
       gameBoard = ["", "", "", "", "", "", "", "", ""];
-      gameActive = true;
       currentPlayer = "X";
-      database.ref(`games/${gameId}`).set({
+      gameActive = true;
+      database.ref("games/" + gameId).update({
         board: gameBoard,
-        currentPlayer: currentPlayer,
-        players: { X: true, O: playerId === "O" ? true : false }
+        currentPlayer
       });
-      statusText.textContent = `Player X ki baari`;
     }
 
     cells.forEach(cell => cell.addEventListener("click", handleCellClick));
-    resetButton.addEventListener("click", resetGame);
-
-    // Start new game on load
-    startNewGame();
   </script>
 </body>
 </html>
