@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Gauri Didi!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&family=Dancing+Script:wght@400;600;700&display=swap');* { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, hsl(240, 10%, 3%) 0%, hsl(260, 30%, 20%) 100%);
+        color: hsl(260, 20%, 95%);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .stars { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+    .star { position: absolute; border-radius: 50%; animation: sparkle 2s ease-in-out infinite; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 2; }
+    .main-content { text-align: center; padding: 2rem 0; }
+    .hidden { display: none; }
+    .fade-in { animation: fadeIn 1s ease-in; }
+
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 6vw, 4rem); font-weight: 700; margin-bottom: 1rem; animation: pulseGlow 3s infinite; }
+    .subtitle { font-size: 1.2rem; color: hsl(260, 10%, 60%); margin-bottom: 2rem; animation: bounce 2s infinite; }
+    .emoji-decoration { font-size: 3rem; margin: 1rem 0; animation: heartBeat 1.5s infinite; }
+
+    .birthday-card { width: 320px; height: 400px; margin: 2rem auto; perspective: 1000px; }
+    .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; cursor: pointer; }
+    .card-inner.flipped { transform: rotateY(180deg); }
+
+    .card-front, .card-back {
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 1rem; display: flex;
+        flex-direction: column; align-items: center; justify-content: center; padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-front { background: linear-gradient(135deg, hsl(260, 30%, 20%) 0%, hsl(260, 20%, 15%) 100%); border: 1px solid hsl(260, 30%, 25%); }
+    .card-back { background: linear-gradient(135deg, hsl(260, 50%, 70%) 0%, hsl(260, 40%, 85%) 100%); color: hsl(240, 10%, 3%); transform: rotateY(180deg); }
+
+    .card-front .cake-emoji { font-size: 4rem; animation: bounceRotate 2s infinite; margin-bottom: 1rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+    .card-message { font-family: 'Dancing Script', cursive; font-size: 1.5rem; font-weight: 600; margin: 1rem 0; animation: typewriter 3s steps(40, end) 1s forwards; overflow: hidden; white-space: nowrap; width: 0; border-right: 2px solid currentColor; }
+    .card-inner.flipped .card-message { width: 100%; }
+
+    .balloons { margin: 3rem 0; }
+    .balloons h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .balloon-container { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .balloon { font-size: 3rem; cursor: pointer; transition: all 0.3s ease; position: relative; }
+    .balloon:hover { transform: translateY(-10px) scale(1.1); }
+
+    .surprise-btn { background: linear-gradient(45deg, hsl(260, 50%, 70%), hsl(260, 40%, 85%)); border: none; padding: 1rem 3rem; font-size: 1.2rem; font-weight: 700; color: hsl(240, 10%, 3%); border-radius: 50px; cursor: pointer; transition: all 0.3s ease; animation: pulseGlow 2s infinite; margin: 2rem 0; }
+    .surprise-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px hsl(260, 50%, 70%), 0 0 40px hsl(260, 50%, 70%); }
+
+    .footer { text-align: center; margin-top: 2rem; color: hsl(260, 10%, 60%); animation: heartBeat 2s infinite; }
+
+    .confetti { position: fixed; width: 10px; height: 10px; z-index: 1000; pointer-events: none; animation: confettiFall 3s linear forwards; }
+    .firework { position: fixed; border-radius: 50%; z-index: 1000; pointer-events: none; animation: fireworkExplode 1s ease-out forwards; }
+    .heart { position: fixed; font-size: 1.5rem; animation: floatUp 6s linear infinite; pointer-events: none; }
+
+    @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulseGlow { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes bounceRotate { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
+    @keyframes typewriter { from { width: 0; } to { width: 100%; } }
+    @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+    @keyframes fireworkExplode { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-10vh); opacity: 0; } }
+</style>
+
+</head>
+<body>
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div><div class="container">
+    <div id="mainContent" class="main-content">
+        <h1>🎉 Happy Birthday Gauri Didi! 🎉</h1>
+        <p class="subtitle">Click around to discover delightful surprises!</p>
+        <div class="emoji-decoration">🎂✨🎈</div>
+
+        <div class="birthday-card">
+            <div class="card-inner" id="birthdayCard">
+                <div class="card-front">
+                    <div class="cake-emoji">🎂</div>
+                    <h2 class="card-title">Happy Birthday Gauri Didi!</h2>
+                    <p>Click to open your card</p>
+                </div>
+                <div class="card-back">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💜</div>
+                    <div class="card-message">Wishing you joy and happiness, Gauri Didi!</div>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">May your special day be filled with wonderful surprises and sweet memories!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="balloons">
+            <h3>Pop the Balloons! 🎈</h3>
+            <div class="balloon-container">
+                <div class="balloon" data-message="You are the best! 💜">🎈</div>
+                <div class="balloon" data-message="Stay happy always! 🌸">🎈</div>
+                <div class="balloon" data-message="Lots of love! 💕">🎈</div>
+                <div class="balloon" data-message="Keep shining! ✨">🎈</div>
+                <div class="balloon" data-message="Happy moments ahead! 🎊">🎈</div>
+            </div>
+        </div>
+
+        <button class="surprise-btn" id="surpriseBtn">✨ Click for Special Surprise! ✨</button>
+    </div>
+
+    <div id="surpriseContent" class="main-content hidden">
+        <div style="font-size: 4rem; margin-bottom: 2rem;">🎊🎉🎊</div>
+        <h1 class="surprise-title">Happy Birthday Gauri Didi! 🎂</h1>
+        <div style="max-width:700px;margin:0 auto;text-align:center;line-height:1.6;">
+            <p style="font-size:1.3rem; margin-bottom:1rem;">💜 Dear Gauri Didi,</p>
+            <p style="font-size:1.1rem; margin-bottom:1rem;">On your special day, I just want to remind you how precious you are to me. You’re not only my sister but also my best friend who always spreads love and happiness around. 🌸</p>
+            <p style="font-size:1.1rem; margin-bottom:1rem;">May this year bring you endless laughter, success, and the fulfillment of all your dreams. You deserve nothing but the very best! ✨</p>
+            <p style="font-size:1.2rem; font-family:'Dancing Script', cursive; color:hsl(260,50%,70%);">With all my love, your lil brother 💜</p>
+        </div>
+        <p class="footer">Made with 💜 especially for Gauri Didi's special day!</p>
+    </div>
+</div>
+
+<script>
+    const birthdayCard = document.getElementById('birthdayCard');
+    let isFlipped = false;
+    birthdayCard.addEventListener('click', function() {
+        isFlipped = !isFlipped;
+        this.classList.toggle('flipped');
+        if (isFlipped) { setTimeout(() => { createConfetti(); createFireworks(); }, 400); }
+    });
+
+    const balloons = document.querySelectorAll('.balloon');
+    balloons.forEach(balloon => {
+        balloon.addEventListener('click', function(e) {
+            const msg = balloon.getAttribute('data-message');
+            balloon.innerHTML = '💥';
+            setTimeout(() => { balloon.innerHTML = msg; }, 300);
+            createSparkles(balloon);
+        });
+    });
+
+    const surpriseBtn = document.getElementById('surpriseBtn');
+    const mainContent = document.getElementById('mainContent');
+    const surpriseContent = document.getElementById('surpriseContent');
+    surpriseBtn.addEventListener('click', function() {
+        mainContent.classList.add('hidden');
+        surpriseContent.classList.remove('hidden');
+        surpriseContent.classList.add('fade-in');
+        createConfetti();
+        createFireworks();
+    });
+
+    function createConfetti() {
+        const colors = ['hsl(260, 50%, 70%)', 'hsl(260, 40%, 85%)', 'hsl(280, 60%, 75%)', 'hsl(240, 50%, 80%)'];
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => { confetti.remove(); }, 5000);
+        }
+    }
+
+    function createFireworks() {
+        for (let i = 0; i < 5; i++) {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.left = Math.random() * 100 + 'vw';
+            firework.style.top = Math.random() * 50 + 'vh';
+            firework.style.width = '10px';
+            firework.style.height = '10px';
+            firework.style.backgroundColor = 'white';
+            document.body.appendChild(firework);
+            setTimeout(() => { firework.remove(); }, 1000);
+        }
+    }
+
+    function createSparkles(element) {
+        const rect = element.getBoundingClientRect();
+        for (let i = 0; i < 10; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+            sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+            sparkle.style.fontSize = '1rem'; sparkle.style.zIndex = '1000'; sparkle.style.pointerEvents = 'none';
+            sparkle.style.animation = 'sparkle 1.5s ease-out forwards';
+            document.body.appendChild(sparkle);
+            setTimeout(() => { sparkle.remove(); }, 1500);
+        }
+    }
+
+    setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = Math.random() > 0.5 ? '❤️' : '🦋';
+        heart.style.left = Math.random() * 100 + 'vw';
+        document.body.appendChild(heart);
+        setTimeout(() => { heart.remove(); }, 6000);
+    }, 1000);
+</script>
+
+</body>
+</html>
