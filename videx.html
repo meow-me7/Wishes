@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrameSnap - Video to Frame Extractor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .drop-zone {
+            border: 2px dashed #9CA3AF;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.active {
+            border-color: #4F46E5;
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        .frame-canvas {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .scrubber::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4F46E5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-12">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">FrameSnap</h1>
+            <p class="text-lg text-gray-600">Extract perfect frames from your videos in seconds</p>
+            <div class="mt-4 flex justify-center">
+                <div class="w-16 h-2 bg-indigo-500 rounded-full"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Upload Section -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Upload Video</h2>
+                        <i data-feather="upload" class="text-indigo-500"></i>
+                    </div>
+                    
+                    <div 
+                        id="dropZone" 
+                        class="drop-zone rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 mb-4"
+                    >
+                        <div class="flex flex-col items-center justify-center space-y-2">
+                            <i data-feather="video" class="w-12 h-12 text-gray-400"></i>
+                            <p class="text-gray-500">Drag & drop your video file here</p>
+                            <p class="text-sm text-gray-400">or</p>
+                            <label for="videoInput" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition cursor-pointer">
+                                Browse Files
+                            </label>
+                            <input type="file" id="videoInput" accept="video/*" class="hidden">
+                        </div>
+                    </div>
+                    
+                    <div id="videoInfo" class="hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500">File name:</span>
+                            <span id="fileName" class="text-sm font-medium text-gray-700"></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Duration:</span>
+                            <span id="fileDuration" class="text-sm font-medium text-gray-700"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview Section -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Frame Preview</h2>
+                        <i data-feather="image" class="text-indigo-500"></i>
+                    </div>
+                    
+                    <div id="previewContainer" class="hidden">
+                        <div class="relative mb-4">
+                            <video id="videoPlayer" class="w-full rounded-lg" controls></video>
+                            <canvas id="frameCanvas" class="frame-canvas w-full mt-4 rounded-lg"></canvas>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="frameScrubber" class="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
+                                <input 
+                                    type="range" 
+                                    id="frameScrubber" 
+                                    min="0" 
+                                    max="100" 
+                                    value="0" 
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer scrubber"
+                                >
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="frameTime" class="block text-sm font-medium text-gray-700 mb-1">Time (seconds)</label>
+                                    <input 
+                                        type="number" 
+                                        id="frameTime" 
+                                        min="0" 
+                                        step="0.1" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="frameFormat" class="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                                    <select 
+                                        id="frameFormat" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+                                        <option value="png">PNG</option>
+                                        <option value="jpeg">JPEG</option>
+                                        <option value="webp">WebP</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                id="downloadBtn" 
+                                class="w-full flex items-center justify-center px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
+                            >
+                                <i data-feather="download" class="mr-2"></i>
+                                Download Frame
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="emptyPreview" class="text-center py-12">
+                        <i data-feather="camera" class="w-12 h-12 mx-auto text-gray-400 mb-4"></i>
+                        <p class="text-gray-500">Upload a video to extract frames</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>Made with ❤️ by FrameSnap | No data leaves your browser</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            const dropZone = document.getElementById('dropZone');
+            const videoInput = document.getElementById('videoInput');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const frameCanvas = document.getElementById('frameCanvas');
+            const frameScrubber = document.getElementById('frameScrubber');
+            const frameTime = document.getElementById('frameTime');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            const emptyPreview = document.getElementById('emptyPreview');
+            const videoInfo = document.getElementById('videoInfo');
+            const fileName = document.getElementById('fileName');
+            const fileDuration = document.getElementById('fileDuration');
+            
+            let videoFile = null;
+            
+            // Handle drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropZone.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropZone.classList.remove('active');
+            }
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+            videoInput.addEventListener('change', handleFileSelect, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('video/')) {
+                        videoFile = file;
+                        loadVideo(file);
+                    } else {
+                        alert('Please select a video file.');
+                    }
+                }
+            }
+            
+            function loadVideo(file) {
+                const videoURL = URL.createObjectURL(file);
+                videoPlayer.src = videoURL;
+                
+                // Show video info
+                fileName.textContent = file.name;
+                videoInfo.classList.remove('hidden');
+                
+                videoPlayer.onloadedmetadata = function() {
+                    const duration = videoPlayer.duration;
+                    fileDuration.textContent = formatTime(duration);
+                    
+                    // Show preview section
+                    previewContainer.classList.remove('hidden');
+                    emptyPreview.classList.add('hidden');
+                    
+                    // Set up scrubber max
+                    frameScrubber.max = Math.floor(duration * 10); // 0.1s precision
+                    
+                    // Update time input when scrubbing
+                    frameScrubber.addEventListener('input', function() {
+                        const time = this.value / 10;
+                        frameTime.value = time.toFixed(1);
+                        updateFrame(time);
+                    });
+                    
+                    // Update scrubber when time input changes
+                    frameTime.addEventListener('input', function() {
+                        let time = parseFloat(this.value);
+                        if (isNaN(time)) time = 0;
+                        if (time < 0) time = 0;
+                        if (time > duration) time = duration;
+                        
+                        frameScrubber.value = time * 10;
+                        updateFrame(time);
+                    });
+                    
+                    // Set up download button
+                    downloadBtn.addEventListener('click', downloadFrame);
+                };
+            }
+            
+            function updateFrame(time) {
+                videoPlayer.currentTime = time;
+                videoPlayer.onseeked = function() {
+                    const ctx = frameCanvas.getContext('2d');
+                    
+                    // Set canvas dimensions to match video frame
+                    frameCanvas.width = videoPlayer.videoWidth;
+                    frameCanvas.height = videoPlayer.videoHeight;
+                    
+                    // Draw current frame on canvas
+                    ctx.drawImage(videoPlayer, 0, 0, frameCanvas.width, frameCanvas.height);
+                };
+            }
+            
+            function downloadFrame() {
+                const format = document.getElementById('frameFormat').value;
+                const time = parseFloat(frameTime.value) || 0;
+                const fileName = `frame-${time.toFixed(1)}s.${format}`;
+                
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = frameCanvas.toDataURL(`image/${format}`);
+                link.click();
+            }
+            
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+        });
+    </script>
+    <script>feather.replace();</script>
+</body>
+</html>
