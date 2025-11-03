@@ -435,6 +435,7 @@
 </head>
 <body>
     <div class="header">
+        <button class="back-btn"><i class="fas fa-arrow-left"></i></button>
         <h1 class="header-title">Birthday Tracker</h1>
         <button class="menu-btn" id="menuBtn"><i class="fas fa-ellipsis-v"></i></button>
     </div>
@@ -504,6 +505,7 @@
         </div>
     </div>
 
+    
     <script>
         const birthdays = JSON.parse(localStorage.getItem('birthdays')) || [];
         const trash = JSON.parse(localStorage.getItem('trash')) || [];
@@ -524,14 +526,18 @@
 
         function getNextBirthday(dob) {
             const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate comparison
+            
             const currentYear = today.getFullYear();
             const birthMonth = dob.getMonth();
             const birthDay = dob.getDate();
             
             let nextBirthday = new Date(currentYear, birthMonth, birthDay);
+            nextBirthday.setHours(0, 0, 0, 0); // Reset time to midnight
             
             if (nextBirthday < today) {
                 nextBirthday = new Date(currentYear + 1, birthMonth, birthDay);
+                nextBirthday.setHours(0, 0, 0, 0);
             }
             
             return nextBirthday;
@@ -539,6 +545,8 @@
 
         function getTimeLeft(nextBirthday) {
             const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate comparison
+            
             const diff = nextBirthday - today;
             const days = Math.floor(diff / (24 * 60 * 60 * 1000));
             
