@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Happy Birthday! 🎂</title>
+  
+  <!-- Fonts: Warm Handwriting & Script Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Mali:wght@400;600;700&family=Pacifico&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ----- HUMAN & WARM DESIGN SYSTEM ----- */
+    :root {
+      --bg: #0f0a17;
+      --surface: #fcf9f2; /* Soft Warm Paper */
+      --surface-hover: #f5eedf;
+      --primary: #9251ab; /* Soft Violet Ink */
+      --primary-glow: rgba(146, 81, 171, 0.3);
+      --secondary: #e2829b; /* Warm Pastel Pink */
+      --text: #2c2830; 
+      --muted: #6e6775;
+      --border: rgba(146, 81, 171, 0.2);
+      --font-sans: 'Mali', cursive, sans-serif;
+      --font-handwriting: 'Caveat', cursive;
+      --font-serif: 'Playfair Display', serif;
+      --font-cursive: 'Pacifico', cursive;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(255, 255, 255, 0.4) inset;
+    }
+
+    .surprise-active {
+      --primary: #d96282;
+      --primary-glow: rgba(217, 98, 130, 0.35);
+    }
+
+    /* ----- GENERAL SETUP ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100svh;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 20%, #29183d 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, #38192d 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #150d24 0%, #08050e 100%);
+      font-family: var(--font-sans);
+      color: var(--text);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    /* Ambient Canvas */
+    #ambientCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Audio Toggle Button */
+    .audio-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      color: var(--text);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .audio-toggle:hover {
+      transform: scale(1.1) rotate(8deg);
+    }
+
+    /* ----- MAIN WRAPPER & PAPER CARD CONTAINER ----- */
+    .main-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+    }
+
+    .card-container {
+      width: 100%;
+      background-color: var(--surface);
+      background-image: radial-gradient(#e0d6c5 1.2px, transparent 1.2px);
+      background-size: 18px 18px;
+      border: none;
+      box-shadow: var(--shadow), inset 0 0 0 6px var(--surface), inset 0 0 0 7px #1d1722, inset 0 -1px 0 #1d1722;
+      border-radius: 50px 16px 50px 16px / 24px 16px 24px 16px; /* Organic corners: top-left & bottom-right */
+      padding: 42px 28px 32px 28px;
+      position: relative;
+      overflow: visible;
+      transition: all 0.5s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: cardEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transform: rotate(-0.5deg);
+    }
+
+    /* Decorative Washi Tape Effect */
+    .card-container::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-1deg);
+      width: 110px;
+      height: 26px;
+      background: rgba(146, 81, 171, 0.55);
+      border-left: 2px dashed rgba(255, 255, 255, 0.6);
+      border-right: 2px dashed rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      z-index: 12;
+    }
+
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: scale(0.9) translateY(30px) rotate(-2.5deg); }
+      to { opacity: 1; transform: scale(1) translateY(0) rotate(-0.5deg); }
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: scale(0.96) translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      width: 100%;
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      animation: slideIn 0.5s ease both;
+    }
+
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateY(12px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ----- BUTTONS & TEXT ----- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), #7c3f96);
+      border: none;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px var(--primary-glow), 3px 4px 0px rgba(0,0,0,0.12);
+      transition: all 0.25s ease;
+    }
+    .btn:hover {
+      transform: translateY(-3px) rotate(1deg);
+      box-shadow: 0 8px 20px var(--primary-glow), 4px 6px 0px rgba(0,0,0,0.15);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 1px 2px 0px rgba(0,0,0,0.15);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px dashed var(--muted);
+      color: var(--text);
+      box-shadow: none;
+    }
+    .btn-secondary:hover {
+      background: rgba(0,0,0,0.04);
+      border-color: var(--text);
+    }
+
+    .tag-label {
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: rgba(146, 81, 171, 0.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(146, 81, 171, 0.15);
+    }
+
+    .glow-title {
+      font-family: var(--font-sans);
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .desc-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .slide-footer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .indicator-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #d8cebe;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dot.active {
+      width: 22px;
+      border-radius: 999px;
+      background: var(--primary);
+    }
+
+    /* ----- SLIDE SPECIFIC STYLES ----- */
+    .bday-title {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .name-glow {
+      font-family: var(--font-handwriting);
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--primary);
+      display: inline-block;
+      line-height: 1;
+      margin-bottom: 10px;
+      transform: rotate(-2deg);
+      text-shadow: 2px 2px 0px rgba(229, 159, 179, 0.3);
+    }
+
+    /* Personal Message Card */
+    .letter-paper {
+      width: 100%;
+      background: #ffffff;
+      border: 1px dashed #dcd0c0;
+      border-radius: 14px;
+      padding: 20px 18px;
+      text-align: left;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      position: relative;
+    }
+    .letter-para {
+      font-family: var(--font-handwriting);
+      font-size: 21px;
+      line-height: 1.45;
+      color: var(--text);
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .letter-para:last-child {
+      margin-bottom: 0;
+    }
+    .letter-para.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Envelope Animation */
+    .envelope {
+      position: relative;
+      width: 240px;
+      height: 150px;
+      margin: 16px auto 20px;
+      cursor: pointer;
+      perspective: 900px;
+      transition: transform 0.3s ease;
+    }
+    .envelope:hover {
+      transform: translateY(-4px);
+    }
+    .env-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #eadfcb, #f6efe2);
+      border: 2px solid #d5c8b8;
+      border-radius: 10px;
+      z-index: 1;
+    }
+    .env-letter-preview {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 178px;
+      height: 108px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-handwriting);
+      font-size: 19px;
+      color: var(--primary);
+      z-index: 2;
+      animation: floatCard 3s ease-in-out infinite;
+    }
+    @keyframes floatCard {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-6px); }
+    }
+    .envelope.hidden {
+      display: none;
+    }
+    #letterContainer {
+      display: none;
+    }
+    #letterContainer.show {
+      display: block;
+      animation: scalePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    /* Name Typing Cursor */
+    .type-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.9em;
+      background: var(--primary);
+      margin-left: 3px;
+      vertical-align: baseline;
+      animation: cursorBlink 0.7s steps(1) infinite;
+    }
+    @keyframes cursorBlink {
+      50% { opacity: 0; }
+    }
+
+    /* Appreciation List */
+    .appreciation-grid {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .appreciation-item {
+      background: #ffffff;
+      border: 1px solid #ebdccb;
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .appreciation-item:hover {
+      box-shadow: 0 5px 12px rgba(0,0,0,0.06);
+    }
+    .appreciation-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .item-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(146, 81, 171, 0.12);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .item-content h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .item-content p {
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    /* Surprise Card */
+    .surprise-card {
+      width: 100%;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .surprise-text {
+      display: none;
+      font-family: var(--font-handwriting);
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--text);
+      background: #ffffff;
+      border: 2px dashed var(--secondary);
+      padding: 16px;
+      border-radius: 14px;
+      margin-top: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+      animation: scalePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    @keyframes scalePop {
+      0% { opacity: 0; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .signature {
+      font-family: var(--font-cursive);
+      font-size: 26px;
+      color: var(--primary);
+      margin-top: 10px;
+    }
+
+    .celebration-title {
+      font-family: var(--font-sans);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    /* ----- MOBILE RESPONSIVENESS ----- */
+    @media (max-width: 480px) {
+      body { padding: 16px 10px; }
+      .card-container { padding: 36px 20px 26px 20px; }
+      .glow-title { font-size: 24px; }
+      .name-glow { font-size: 46px; }
+      .desc-text { font-size: 13px; }
+      .btn { padding: 11px 24px; font-size: 15px; }
+      .letter-para { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Particles Canvas -->
+  <canvas id="ambientCanvas"></canvas>
+
+  <!-- Audio Toggle control -->
+  <button class="audio-toggle" id="audioBtn" onclick="toggleMute()" title="Toggle Sound" aria-label="Toggle sound effect">
+    <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+  </button>
+
+  <!-- Main Webpage content -->
+  <main class="main-wrapper">
+    <div class="card-container" id="cardContainer">
+
+      <!-- Slide 1: Welcome Hero -->
+      <section class="slide active" id="slide0">
+        <div class="tag-label">
+          <i class="fa-solid fa-heart" style="font-size: 10px;"></i> <span id="welcomeTag"></span>
+        </div>
+        
+        <h1 class="glow-title" id="welcomeTitle"></h1>
+        <p class="desc-text" id="welcomeDesc"></p>
+        
+        <div class="slide-footer">
+          <button class="btn" onclick="nextSlide()">
+            Open Card <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 2: Birthday Reveal -->
+      <section class="slide" id="slide1">
+        <div class="tag-label">
+          <i class="fa-solid fa-cake-candles" style="font-size: 10px;"></i> <span id="revealTag"></span>
+        </div>
+        <h2 class="bday-title" id="revealTitle"></h2>
+        <span class="name-glow" id="recipientName"></span>
+        
+        <p class="desc-text" id="revealDesc"></p>
+        
+        <div class="slide-footer">
+          <button class="btn" id="revealContinue" onclick="nextSlide()" disabled>
+            Continue <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Personal Message -->
+      <section class="slide" id="slide2">
+        <div class="tag-label">
+          <i class="fa-solid fa-envelope" style="font-size: 10px;"></i> <span id="msgTag"></span>
+        </div>
+        <h2 class="glow-title" id="msgTitle"></h2>
+
+        <div class="envelope" id="letterEnvelope" onclick="openEnvelope()" role="button" tabindex="0">
+          <div class="env-body"></div>
+          <div class="env-letter-preview">A letter for you 💌</div>
+        </div>
+
+        <div class="letter-paper" id="letterContainer"></div>
+
+        <div class="slide-footer">
+          <button class="btn" id="readOnBtn" onclick="nextSlide()" disabled>
+            Read On <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 4: Appreciation Card -->
+      <section class="slide" id="slide3">
+        <div class="tag-label">
+          <i class="fa-solid fa-sparkles" style="font-size: 10px;"></i> <span id="appTag"></span>
+        </div>
+        <h2 class="glow-title" id="appTitle"></h2>
+
+        <div class="appreciation-grid" id="appGrid"></div>
+
+        <div class="slide-footer">
+          <button class="btn" onclick="nextSlide()">
+            Next <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 5: Interactive Surprise Card -->
+      <section class="slide" id="slide4">
+        <div class="tag-label">
+          <i class="fa-solid fa-gift" style="font-size: 10px;"></i> <span id="surpriseTag"></span>
+        </div>
+        <h2 class="glow-title" id="surpriseTitle"></h2>
+
+        <div class="surprise-card">
+          <button class="btn" id="surpriseBtn" onclick="triggerSurprise()">
+            Open Surprise <i class="fa-solid fa-gift"></i>
+          </button>
+
+          <div class="surprise-text" id="surpriseText"></div>
+        </div>
+
+        <div class="slide-footer">
+          <button class="btn" id="surpriseNext" onclick="nextSlide()" disabled style="display: none;">
+            Almost done <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 6: Final Wish Card -->
+      <section class="slide" id="slide5">
+        <div class="tag-label">
+          <i class="fa-solid fa-star" style="font-size: 10px;"></i> <span id="finalTag"></span>
+        </div>
+
+        <h2 class="glow-title" id="finalTitle"></h2>
+        <p class="desc-text" id="finalDesc" style="margin-bottom: 6px;"></p>
+
+        <div class="signature" id="finalSign"></div>
+
+        <div class="slide-footer">
+          <button class="btn" onclick="nextSlide()">
+            Finish <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <div class="indicator-dots"></div>
+        </div>
+      </section>
+
+      <!-- Slide 7: Celebration Screen -->
+      <section class="slide" id="slide6">
+        <h2 class="celebration-title" id="celebrateTitle"></h2>
+        
+        <p class="desc-text" id="celebrateDesc"></p>
+
+        <div class="slide-footer">
+          <button class="btn btn-secondary" onclick="restartJourney()">
+            <i class="fa-solid fa-rotate-left"></i> Replay Journey
+          </button>
+        </div>
+      </section>
+      
+    </div>
+  </main>
+
+  <script>
+    // CONFIGURATION
+    const CONFIG = {
+      recipientName: "Payal",
+      senderName: "Bhiyaa",
+      welcome: {
+        tag: "A little note for you",
+        title: "I made this for you",
+        desc: "A small digital scrapbook gift to celebrate your special day. Click below to step inside."
+      },
+      birthdayReveal: {
+        tag: "Today is the day!",
+        title: "Happy Birthday,",
+        desc: "Wishing you a beautiful day filled with magic, laughter, and endless smiles! 🎂"
+      },
+      personalMessage: {
+        tag: "Handwritten Note",
+        title: "For You, Sister 🌹",
+        paragraphs: [
+          "Another year around the sun, and I've noticed something sweet - jab bhi hum baat karte hain, mere face par khud-ba-khud smile aa jaati hai. Kab aur kaise, pata nahi. Shayad isliye ki aapse baat karke sach mein khushi milti hai.",
+          "Aur haan, aapka official title ab 'Badi Bahen' hai - kyunki aap meri se ek saal badi hain, toh seat toh aapki hi banti hai. Ab responsibilities bhi utni hi badi!",
+          "Aapka favourite color black? Perfect choice - classy, strong, aur mystery se bhara, bilkul aapki tarah. Bas itna request hai ki baaton mein itna mystery na rakhein, warna main puzzles solve karte-karte aapka birthday miss kar dunga."
+        ]
+      },
+      appreciation: {
+        tag: "Heart to Heart",
+        title: "Why You're Special",
+        items: [
+          { label: "Har Baat Sunna", desc: "Aap meri har ek baat dhyan se sunte hain - chhoti ho ya badi, kabhi ignore nahi karte. Ye sabse zyada pasand hai." },
+          { label: "Sun Kar Samjhana", desc: "Baat sun kar reply karte hain, samjhaate hain aur kabhi akela feel nahi hone dete. Aise hi rehti hain." },
+          { label: "Badi Bahen", desc: "Aap mujhse 1 saal badi hain, phir bhi dhyan hamesha mera rakhti hain. Honest aur seedhi-saadhi, dil ki bahut achhi hain." },
+          { label: "Khushi Ka Sabab", desc: "Aapse baat karke khushi milti hai aur smile aa jaati hai. Ek chhota sa message bhi mood achha kar deta hai." }
+        ]
+      },
+      surprise: {
+        tag: "Wait, tap the box!",
+        title: "A Little Surprise",
+        funnyMessage: "Warning: Having a sister this awesome is legally classified as a flex! 😎 In case you forgot, you're absolutely stuck with my wishes forever! 😭"
+      },
+      finalWish: {
+        tag: "One final wish",
+        title: "Happy Birthday, Payal!",
+        desc: "May this new chapter bring you endless success, happiness, and peace. May all your dreams come true.",
+        signOff: "With love & blessings,"
+      },
+      celebration: {
+        title: "Unwrapped! 🎉",
+        desc: "You unlocked all cards! May this year bring you endless reasons to smile."
+      }
+    };
+
+    // AUDIO SYNTH
+    let audioCtx = null;
+    let isMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSynthTone(freq, type, duration, delay = 0, volume = 0.12) {
+      if (isMuted) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+        gainNode.gain.setValueAtTime(volume, audioCtx.currentTime + delay);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + delay);
+        osc.stop(audioCtx.currentTime + delay + duration);
+      } catch (e) {}
+    }
+
+    function playPopSound() {
+      playSynthTone(587.33, 'triangle', 0.12, 0, 0.15);
+      playSynthTone(880, 'sine', 0.1, 0.04, 0.08);
+    }
+
+    function playSuccessChime() {
+      playSynthTone(523.25, 'triangle', 0.2, 0, 0.1);
+      playSynthTone(659.25, 'triangle', 0.2, 0.08, 0.1);
+      playSynthTone(783.99, 'triangle', 0.2, 0.16, 0.1);
+      playSynthTone(1046.50, 'sine', 0.4, 0.24, 0.15);
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      document.getElementById("audioIcon").className = isMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
+      if (!isMuted) {
+        playPopSound();
+      }
+    }
+
+    // FIREFLIES CANVAS
+    const canvas = document.getElementById('ambientCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    const particles = [];
+
+    class Firefly {
+      constructor() { this.reset(); this.y = Math.random() * height; }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = height + 10;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = -(Math.random() * 0.3 + 0.15);
+        this.opacity = Math.random() * 0.4 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.y < -10) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(229, 159, 179, ${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 30; i++) particles.push(new Firefly());
+    function animateParticles() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // SLIDE CONTROLS & DATA POPULATION
+    let currentSlideIndex = 0;
+    const totalSlides = 7;
+    let surpriseTriggered = false;
+
+    function populateData() {
+      document.getElementById('welcomeTag').textContent = CONFIG.welcome.tag;
+      document.getElementById('welcomeTitle').textContent = CONFIG.welcome.title;
+      document.getElementById('welcomeDesc').textContent = CONFIG.welcome.desc;
+
+      document.getElementById('revealTag').textContent = CONFIG.birthdayReveal.tag;
+      document.getElementById('revealTitle').textContent = CONFIG.birthdayReveal.title;
+      document.getElementById('recipientName').textContent = ''; // filled by typing effect
+      document.getElementById('revealDesc').textContent = CONFIG.birthdayReveal.desc;
+
+      document.getElementById('msgTag').textContent = CONFIG.personalMessage.tag;
+      document.getElementById('msgTitle').textContent = CONFIG.personalMessage.title;
+
+      const letterContainer = document.getElementById('letterContainer');
+      letterContainer.innerHTML = '';
+      CONFIG.personalMessage.paragraphs.forEach(paraText => {
+        const p = document.createElement('p');
+        p.className = 'letter-para';
+        p.textContent = paraText;
+        letterContainer.appendChild(p);
+      });
+
+      document.getElementById('appTag').textContent = CONFIG.appreciation.tag;
+      document.getElementById('appTitle').textContent = CONFIG.appreciation.title;
+      const appGrid = document.getElementById('appGrid');
+      appGrid.innerHTML = '';
+      CONFIG.appreciation.items.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'appreciation-item';
+        itemDiv.innerHTML = `
+          <div class="item-num">0${index + 1}</div>
+          <div class="item-content">
+            <h4>${item.label}</h4>
+            <p>${item.desc}</p>
+          </div>
+        `;
+        appGrid.appendChild(itemDiv);
+      });
+
+      document.getElementById('surpriseTag').textContent = CONFIG.surprise.tag;
+      document.getElementById('surpriseTitle').textContent = CONFIG.surprise.title;
+      document.getElementById('surpriseText').textContent = CONFIG.surprise.funnyMessage;
+
+      document.getElementById('finalTag').textContent = CONFIG.finalWish.tag;
+      document.getElementById('finalTitle').textContent = CONFIG.finalWish.title;
+      document.getElementById('finalDesc').textContent = CONFIG.finalWish.desc;
+      document.getElementById('finalSign').textContent = `- ${CONFIG.finalWish.signOff} ${CONFIG.senderName}`;
+
+      document.getElementById('celebrateTitle').textContent = CONFIG.celebration.title;
+      document.getElementById('celebrateDesc').textContent = CONFIG.celebration.desc;
+
+      document.querySelectorAll('.indicator-dots').forEach(container => {
+        container.innerHTML = '';
+        for (let i = 0; i < totalSlides; i++) {
+          const dot = document.createElement('span');
+          dot.className = `dot ${i === 0 ? 'active' : ''}`;
+          container.appendChild(dot);
+        }
+      });
+    }
+
+    function renderSlide(slideIdx) {
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((slide, idx) => {
+        if (idx === slideIdx) {
+          slide.style.display = 'flex';
+          setTimeout(() => slide.classList.add('active'), 20);
+        } else {
+          slide.classList.remove('active');
+          slide.style.display = 'none';
+        }
+      });
+
+      document.querySelectorAll('.indicator-dots').forEach(group => {
+        const dots = group.querySelectorAll('.dot');
+        dots.forEach((dot, dotIdx) => dot.classList.toggle('active', dotIdx === slideIdx));
+      });
+
+      handleSlideEnter(slideIdx);
+    }
+
+    function handleSlideEnter(slideIdx) {
+      if (slideIdx === 1) {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.65 } });
+        playSuccessChime();
+        typeName(document.getElementById('recipientName'), CONFIG.recipientName, 150);
+        setTimeout(() => { document.getElementById('revealContinue').disabled = false; }, 2700);
+      } else if (slideIdx === 2) {
+        document.getElementById('readOnBtn').disabled = true;
+        playPopSound();
+      } else if (slideIdx === 3) {
+        const items = document.querySelectorAll('.appreciation-item');
+        items.forEach((item, idx) => {
+          setTimeout(() => item.classList.add('visible'), 150 + (idx * 250));
+        });
+        playPopSound();
+      } else if (slideIdx === 6) {
+        confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+        playSuccessChime();
+      } else {
+        playPopSound();
+      }
+    }
+
+    let envelopeOpened = false;
+
+    function typeName(el, text, speed = 150) {
+      el.textContent = '';
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'type-cursor';
+      el.appendChild(cursor);
+      function tick() {
+        if (i < text.length) {
+          cursor.before(document.createTextNode(text[i]));
+          i++;
+          setTimeout(tick, speed);
+        } else {
+          cursor.remove();
+        }
+      }
+      setTimeout(tick, 300);
+    }
+
+    function openEnvelope() {
+      if (envelopeOpened) return;
+      envelopeOpened = true;
+      const env = document.getElementById('letterEnvelope');
+      playPopSound();
+      setTimeout(() => {
+        env.classList.add('hidden');
+        document.getElementById('letterContainer').classList.add('show');
+        const paras = document.querySelectorAll('.letter-para');
+        paras.forEach((p, idx) => {
+          setTimeout(() => p.classList.add('visible'), 200 + (idx * 800));
+        });
+        document.getElementById('readOnBtn').disabled = false;
+        playSuccessChime();
+      }, 650);
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < totalSlides - 1) {
+        currentSlideIndex++;
+        renderSlide(currentSlideIndex);
+      }
+    }
+
+    function restartJourney() {
+      currentSlideIndex = 0;
+      surpriseTriggered = false;
+      envelopeOpened = false;
+      const env = document.getElementById('letterEnvelope');
+      env.classList.remove('open', 'hidden');
+      document.getElementById('letterContainer').classList.remove('show');
+      document.getElementById('cardContainer').classList.remove('surprise-active');
+      document.getElementById('surpriseBtn').style.display = '';
+      document.getElementById('surpriseText').style.display = 'none';
+      document.getElementById('surpriseNext').style.display = 'none';
+      document.getElementById('surpriseNext').disabled = true;
+      document.getElementById('revealContinue').disabled = true;
+      renderSlide(0);
+    }
+
+    function triggerSurprise() {
+      if (surpriseTriggered) return;
+      surpriseTriggered = true;
+      playSuccessChime();
+
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 } });
+      document.getElementById('cardContainer').classList.add('surprise-active');
+
+      document.getElementById('surpriseText').style.display = 'block';
+      document.getElementById('surpriseNext').style.display = '';
+      document.getElementById('surpriseNext').disabled = false;
+      document.getElementById('surpriseBtn').style.display = 'none';
+    }
+
+    populateData();
+    animateParticles();
+    renderSlide(0);
+  </script>
+</body>
+</html>
